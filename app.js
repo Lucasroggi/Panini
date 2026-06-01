@@ -19,7 +19,9 @@ const DEMO = new URLSearchParams(location.search).has('demo');
 
 /* ---------- Stammdaten: Gruppen & Teams (Endauslosung 05.12.2025) ---------- */
 const PER_TEAM = 20;
-const FWC_COUNT = 20; // 9 Intro- + 11 FIFA-Museum-Sticker
+// Sticker-Beschriftungen: Teams 1..20; FWC zusätzlich "00" (Panini-Logo) vor 1..20
+const TEAM_LABELS = Array.from({ length: PER_TEAM }, (_, i) => String(i + 1));
+const FWC_LABELS = ['00', ...TEAM_LABELS];
 
 const GROUPS = [
   { letter:'A', teams:[['MEX','Mexiko','🇲🇽'],['RSA','Südafrika','🇿🇦'],['KOR','Südkorea','🇰🇷'],['CZE','Tschechien','🇨🇿']]},
@@ -41,7 +43,7 @@ const GROUPS = [
    alles andere als vorhanden. Hinweis: KSA -> Excel zählt 9 Fehlende,
    im Bild waren nur 8 lesbar. Bitte die 9. Nummer in der App ergänzen. */
 const SEED_MISSING = {
-  FWC:[2,3,6,8,10,15,17,19],
+  FWC:['00',2,3,6,8,10,15,17,19],
   MEX:[2,12,14,16,17,18], RSA:[2,5,6,10,19], KOR:[2,4,6,9,17,18], CZE:[2,10,12,16],
   CAN:[1,14,16,17], BIH:[7,11,15], QAT:[3,9,11,13,15,18], SUI:[4,10,11,17,20],
   BRA:[1,3,4,15,16,18], MAR:[8,9,11,15,18], HAI:[4,5,9,14,16,17,18], SCO:[13,18,20],
@@ -49,7 +51,7 @@ const SEED_MISSING = {
   GER:[10,11,12], CUW:[2,3,8,10,12,14], CIV:[8,11,19], ECU:[2,4,5,8,9,16,18,19],
   NED:[1,2,9,11,15], JPN:[2,4,8,9,15,16,18], SWE:[6,9,12,15,19], TUN:[5,12,19],
   BEL:[2,4,16,20], EGY:[3,7,10,15,17,18], IRN:[2,4,6,10,12,14,16], NZL:[9,10,12],
-  ESP:[1,2,6,8,12,15,20], CPV:[7,8,14,16], KSA:[1,4,7,8,12,15,16,20], URU:[1,10,11,13,15,19],
+  ESP:[1,2,6,8,12,15,20], CPV:[7,8,14,16], KSA:[1,4,6,7,8,12,15,16,20], URU:[1,10,11,13,15,19],
   FRA:[1,2,5,8,18,19,20], SEN:[9,11,17], IRQ:[8,12,20], NOR:[10,17,19],
   ARG:[5,12,13,15,19], ALG:[5,11], AUT:[5,10,12,14,15,18,20], JOR:[1,2,7,9,11,16,18,20],
   POR:[3,4,9,16,18,20], COD:[7,13,14,18,19,20], UZB:[2,4,8,9,17,19], COL:[1,2,3,5,9,14],
@@ -57,9 +59,9 @@ const SEED_MISSING = {
 };
 
 /* ---------- Abschnittsliste in Album-Reihenfolge ---------- */
-const SECTIONS = [{ code:'FWC', name:'Spezial: Intro & FIFA-Museum', flag:'🏆', count:FWC_COUNT, group:'FWC' }];
+const SECTIONS = [{ code:'FWC', name:'Spezial: Panini-Logo, Intro & FIFA-Museum', flag:'🏆', labels:FWC_LABELS, count:FWC_LABELS.length, group:'FWC' }];
 GROUPS.forEach(g => g.teams.forEach(([code,name,flag]) =>
-  SECTIONS.push({ code, name, flag, count:PER_TEAM, group:g.letter })));
+  SECTIONS.push({ code, name, flag, labels:TEAM_LABELS, count:TEAM_LABELS.length, group:g.letter })));
 const SECTION_BY_CODE = Object.fromEntries(SECTIONS.map(s => [s.code, s]));
 
 /* ISO-Codes für echte Flaggen-Bilder (flagcdn.com) – funktionieren auch auf Windows */
@@ -87,14 +89,15 @@ let currentTab = 'fehlen';
 let filterQuery = '';
 let filterOnlyMissing = false;
 let saveTimer = null;
+let pendingSave = false;
 
 /* Zustand aufbauen: useSeed = Excel-Stand, sonst alles fehlend */
 function buildState(useSeed) {
   const s = {};
   for (const sec of SECTIONS) {
-    const miss = new Set(useSeed ? (SEED_MISSING[sec.code] || []) : []);
+    const miss = new Set((useSeed ? (SEED_MISSING[sec.code] || []) : []).map(String));
     s[sec.code] = Array.from({ length: sec.count }, (_, i) => ({
-      o: useSeed ? !miss.has(i + 1) : false,
+      o: useSeed ? !miss.has(sec.labels[i]) : false,
       d: 0,
     }));
   }
@@ -138,10 +141,13 @@ function totals(){
 }
 
 /* Sticker-Typ als Tooltip */
-function typeHint(sec, n){
-  if (sec.code === 'FWC') return n <= 9 ? 'Intro-Sticker' : 'FIFA-Museum-Sticker';
-  if (n === 1) return 'Vereinswappen';
-  if (n === 2) return 'Mannschaftsfoto';
+function typeHint(sec, label){
+  if (sec.code === 'FWC'){
+    if (label === '00') return 'Panini-Logo';
+    return Number(label) <= 9 ? 'Intro-Sticker' : 'FIFA-Museum-Sticker';
+  }
+  if (label === '1') return 'Vereinswappen';
+  if (label === '2') return 'Mannschaftsfoto';
   return 'Spielersticker';
 }
 
@@ -161,8 +167,10 @@ async function loadCollection(){
 }
 
 async function saveNow(){
-  if (DEMO){ setStatus('Demo – nicht gespeichert', ''); return; }
+  if (DEMO){ pendingSave = false; setStatus('Demo – nicht gespeichert', ''); return; }
   if (!currentUser || !state) return;
+  clearTimeout(saveTimer);
+  pendingSave = true;
   setStatus('Speichern …', 'pending');
   const { error } = await sb.from('collections').upsert({
     user_id: currentUser.id,
@@ -170,10 +178,11 @@ async function saveNow(){
     updated_at: new Date().toISOString(),
   });
   if (error){ setStatus('Speicherfehler', 'err'); console.error(error); }
-  else setStatus('Gespeichert ✓', 'ok');
+  else { pendingSave = false; setStatus('Gespeichert ✓', 'ok'); }
 }
 
 function scheduleSave(){
+  pendingSave = true;
   setStatus('Speichern …', 'pending');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveNow, 700);
@@ -232,8 +241,8 @@ function renderFehlen(){
     }
 
     const cells = state[sec.code].map((c,i)=>{
-      const n = i+1;
-      return `<button class="cell ${c.o?'owned':'missing'}" data-code="${sec.code}" data-i="${i}" title="Nr. ${n} – ${typeHint(sec,n)} (${c.o?'vorhanden':'fehlt'})">${n}</button>`;
+      const label = sec.labels[i];
+      return `<button class="cell ${c.o?'owned':'missing'}" data-code="${sec.code}" data-i="${i}" title="Nr. ${label} – ${typeHint(sec,label)} (${c.o?'vorhanden':'fehlt'})">${label}</button>`;
     }).join('');
 
     html += `
@@ -255,7 +264,7 @@ function renderDoppelt(){
   const swapLines = [];
   for (const sec of SECTIONS){
     const parts = [];
-    state[sec.code].forEach((c,i)=>{ if (c.o && c.d>0) parts.push((i+1) + (c.d>1 ? '×'+c.d : '')); });
+    state[sec.code].forEach((c,i)=>{ if (c.o && c.d>0) parts.push(sec.labels[i] + (c.d>1 ? '×'+c.d : '')); });
     if (parts.length) swapLines.push(`${sec.code} (${sec.name}): ${parts.join(', ')}`);
   }
   const swapText = swapLines.length ? swapLines.join('\n') : 'Noch keine Doppelten erfasst.';
@@ -286,10 +295,11 @@ function renderDoppelt(){
     }
 
     const steppers = state[sec.code].map((c,i)=>{
-      if (!c.o) return `<div class="dbl missing-dbl" title="Sticker Nr. ${i+1} fehlt noch">#${i+1}</div>`;
+      const label = sec.labels[i];
+      if (!c.o) return `<div class="dbl missing-dbl" title="Sticker Nr. ${label} fehlt noch">#${label}</div>`;
       return `
         <div class="dbl ${c.d>0?'has-dbl':''}">
-          <span class="dbl-n">#${i+1}</span>
+          <span class="dbl-n">#${label}</span>
           <span class="stepper">
             <button class="step" data-act="dec" data-code="${sec.code}" data-i="${i}" ${c.d===0?'disabled':''}>−</button>
             <span class="dbl-cnt">${c.d}</span>
@@ -442,6 +452,12 @@ function init(){
     return;
   }
   wireEvents();
+
+  // Ausstehende Speicherung sichern, wenn die Seite in den Hintergrund geht/geschlossen wird
+  const flush = ()=>{ if (pendingSave){ clearTimeout(saveTimer); saveNow(); } };
+  document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState === 'hidden') flush(); });
+  window.addEventListener('pagehide', flush);
+
   if (DEMO){ startDemo(); return; }
   // Auth-Status beobachten
   sb.auth.onAuthStateChange((_e, session)=> handleSession(session));

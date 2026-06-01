@@ -6,7 +6,7 @@ sodass deine Sammlung auf PC und Handy synchron ist.
 
 - **Frontend:** statisch (HTML/CSS/JS) → läuft auf **GitHub Pages**
 - **Backend:** **Supabase** (Login + Postgres-Datenbank)
-- **Umfang:** FWC-Spezialsticker + Gruppe A–L · 48 Teams × 20 Sticker + 20 Spezial = **980**
+- **Umfang:** FWC (Panini-Logo „00“ + 20 Spezial) + Gruppe A–L · 48 Teams × 20 = **981**
 - Pro Team/Block: Anzahl fehlender Sticker, Gesamt-Fortschritt, Doppelt-Zähler & automatische **Tauschliste**
 - Startzustand ist mit deinem Excel-Stand **vorbefüllt** (262 fehlend).
 
@@ -72,10 +72,9 @@ Speichern passiert **automatisch** (kurz nach jeder Änderung) in Supabase.
 ## Hinweise zum Datenbestand
 
 - Reihenfolge entspricht der **Endauslosung vom 05.12.2025** (Gruppe A–L).
-- **KSA (Saudi-Arabien):** Im Excel-Bild waren nur 8 der 9 fehlenden Nummern lesbar
-  (`1,4,7,8,12,15,16,20`). Bitte die fehlende 9. Nummer in der App ergänzen.
-- **FWC:** als 20 Spezialsticker angenommen (9 Intro + 11 FIFA-Museum); die „999“ aus
-  dem Excel war ein Platzhalter und wird ignoriert.
+- **KSA (Saudi-Arabien):** 9 fehlende Sticker (`1,4,6,7,8,12,15,16,20`).
+- **FWC:** Panini-Logo „00“ + 20 Spezialsticker (9 Intro + 11 FIFA-Museum) = 21 Stück.
+  Das „999“ aus dem Excel stand für die „00“ (Panini-Logo selbst).
 - **Flaggen** werden als kleine Bilder von `flagcdn.com` geladen (kostenlos, kein Key,
   funktionieren auch unter Windows). Dafür ist eine Internetverbindung nötig – offline
   blenden sich die Flaggen einfach aus.
