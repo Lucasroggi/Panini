@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panini WM 2026 – Sticker-Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+</head>
+<body>
+
+  <div id="app">
+    <!-- Kopfzeile -->
+    <header id="topbar">
+      <div class="brand">⚽ <span>Panini <strong>WM 2026</strong></span></div>
+      <div class="topbar-right">
+        <span id="save-status" class="save-status"></span>
+        <span id="user-email" class="user-email"></span>
+        <button id="btn-logout" class="btn btn-ghost" hidden>Abmelden</button>
+      </div>
+    </header>
+
+    <!-- Login / Registrierung -->
+    <section id="auth-view" class="auth-view" hidden>
+      <div class="auth-card">
+        <h1>⚽ Panini WM 2026 Tracker</h1>
+        <p class="auth-intro">Melde dich an oder erstelle ein Konto. Deine Sammlung wird sicher in der Cloud gespeichert und ist auf allen Geräten verfügbar.</p>
+        <form id="auth-form">
+          <label>E-Mail<input id="auth-email" type="email" autocomplete="email" required></label>
+          <label>Passwort<input id="auth-pw" type="password" autocomplete="current-password" minlength="6" required></label>
+          <div class="auth-buttons">
+            <button type="submit" name="mode" value="signin" class="btn btn-primary">Anmelden</button>
+            <button type="submit" name="mode" value="signup" class="btn">Registrieren</button>
+          </div>
+          <p id="auth-msg" class="auth-msg"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Hauptansicht -->
+    <main id="main-view" hidden>
+
+      <!-- Fortschritt -->
+      <section id="summary" class="summary">
+        <div class="progress">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span id="sum-collected">0</span> / <span id="sum-total">0</span> gesammelt <span class="muted">(<span id="sum-pct">0%</span>)</span></div>
+          <div class="stat stat-missing">Fehlen: <span id="sum-missing">0</span></div>
+          <div class="stat stat-dbl">Doppelt: <span id="sum-doubles">0</span></div>
+        </div>
+      </section>
+
+      <!-- Reiter -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="fehlen">Fehlen</button>
+        <button class="tab-btn" data-tab="doppelt">Doppelt</button>
+      </nav>
+
+      <!-- Werkzeugleiste -->
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Team suchen (z. B. BRA, Deutschland) …">
+        <label class="check"><input id="only-missing" type="checkbox"> nur unvollständige Teams</label>
+        <details id="reset-menu" class="reset-menu">
+          <summary class="btn btn-ghost">⚙ Zurücksetzen</summary>
+          <div class="reset-pop">
+            <button id="reset-seed" class="btn">Auf Excel-Stand setzen</button>
+            <button id="reset-empty" class="btn">Alles auf „fehlt“</button>
+            <button id="reset-all" class="btn">Alles als gesammelt</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Panels -->
+      <div id="tab-fehlen" class="tab-panel"></div>
+      <div id="tab-doppelt" class="tab-panel" hidden></div>
+
+      <footer class="foot">
+        <small>Album-Reihenfolge: FWC → Gruppe A–L · 48 Teams × 20 Sticker + 20 Spezial = 980 · Auslosung vom 05.12.2025</small>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Konfigurationshinweis, falls config.js noch nicht ausgefüllt ist -->
+  <div id="config-error" class="config-error" hidden>
+    <div class="auth-card">
+      <h1>⚙ Einrichtung nötig</h1>
+      <p>Trage zuerst deine Supabase-Zugangsdaten in <code>config.js</code> ein
+         (<code>SUPABASE_URL</code> und <code>SUPABASE_ANON_KEY</code>) und lade die Seite neu.</p>
+      <p>Die genaue Anleitung steht in <code>README.md</code>.</p>
+    </div>
+  </div>
+
+  <!-- Supabase-Client (UMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

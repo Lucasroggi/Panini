@@ -1,0 +1,11 @@
+# Betriebssystem / Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Abhängigkeiten (falls später genutzt)
+node_modules/
+
+# Lokale Claude-Code-Einstellungen (maschinenspezifisch)
+.claude/settings.local.json
