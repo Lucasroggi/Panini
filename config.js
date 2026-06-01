@@ -11,6 +11,6 @@
    Row-Level-Security-Regeln aus schema.sql.
    ============================================================ */
 window.PANINI_CONFIG = {
-  SUPABASE_URL: "https://DEIN-PROJEKT.supabase.co",
-  SUPABASE_ANON_KEY: "DEIN-ANON-KEY"
+  SUPABASE_URL: "https://mlbctjcwiqnqphljhjzg.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_EoEMSM3Wa0qd19ILD1Ys6w_wzMGv9Lw"
 };
