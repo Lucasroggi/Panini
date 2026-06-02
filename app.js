@@ -434,9 +434,19 @@ async function handleSession(session){
     if (loadedFor !== currentUser.id){
       loadedFor = currentUser.id;
       setStatus('Laden …', 'pending');
-      await loadCollection();
-      render();
-      setStatus('Gespeichert ✓', 'ok');
+      try {
+        await loadCollection();
+        setStatus('Gespeichert ✓', 'ok');
+      } catch (err){
+        console.error('Sammlung konnte nicht geladen werden:', err);
+        if (!state) state = buildState(true);
+        setStatus('⚠ Datenbank nicht erreichbar', 'err');
+        alert('Verbindung zur Datenbank (Supabase) fehlgeschlagen.\n\n' +
+              'Die App zeigt vorerst den Ausgangsstand – Änderungen werden NICHT gespeichert, bis die Verbindung wieder steht.\n\n' +
+              'Häufigste Ursache: Ein kostenloses Supabase-Projekt wird nach längerer Inaktivität pausiert. ' +
+              'Bitte im Supabase-Dashboard prüfen und ggf. „Restore/Resume project" klicken.');
+      }
+      render(); // läuft IMMER – die Seite bleibt nie leer
     }
   } else {
     loadedFor = null; state = null;
@@ -526,7 +536,9 @@ function init(){
   if (DEMO){ startDemo(); return; }
   // Auth-Status beobachten
   sb.auth.onAuthStateChange((_e, session)=> handleSession(session));
-  sb.auth.getSession().then(({ data })=> handleSession(data.session));
+  sb.auth.getSession()
+    .then(({ data })=> handleSession(data.session))
+    .catch(err=>{ console.error('getSession fehlgeschlagen:', err); setStatus('⚠ Datenbank nicht erreichbar', 'err'); });
 }
 
 function doReset(kind){
