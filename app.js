@@ -11,7 +11,16 @@ const CFG = window.PANINI_CONFIG || {};
 const CONFIGURED = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY &&
                       !CFG.SUPABASE_URL.includes('DEIN-PROJEKT') &&
                       window.supabase);
-const sb = CONFIGURED ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY) : null;
+const sb = CONFIGURED ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    // Eigener No-Op-Lock statt navigator.locks. Letzteres kann sich beim
+    // Seiten-Reload verklemmen ("Laden ..." friert ein). Fuer eine
+    // Ein-Personen-App ist kein tab-uebergreifender Lock noetig.
+    lock: (_name, _acquireTimeout, fn) => fn(),
+  },
+}) : null;
 
 /* Demo-Modus: index.html?demo zeigt die App mit Excel-Stand OHNE Login/Speicherung
    (zum Ausprobieren vor dem Supabase-Setup). */
@@ -542,11 +551,15 @@ function init(){
   window.addEventListener('pagehide', flush);
 
   if (DEMO){ startDemo(); return; }
-  // Auth-Status beobachten
+  // Auth beobachten (INITIAL_SESSION liefert die gespeicherte Sitzung)
   sb.auth.onAuthStateChange((_e, session)=> handleSession(session));
+  // getSession – mit Sicherheitsnetz: falls es doch haengt, nach 8 s die
+  // Login-Seite zeigen, statt auf "Laden ..." einzufrieren.
+  let sessionResolved = false;
   sb.auth.getSession()
-    .then(({ data })=> handleSession(data.session))
-    .catch(err=>{ console.error('getSession fehlgeschlagen:', err); setStatus('⚠ Datenbank nicht erreichbar', 'err'); });
+    .then(({ data })=>{ sessionResolved = true; handleSession(data.session); })
+    .catch(err=>{ sessionResolved = true; console.error('getSession fehlgeschlagen:', err); handleSession(null); });
+  setTimeout(()=>{ if (!sessionResolved && !currentUser){ console.warn('getSession-Timeout – zeige Login'); handleSession(null); } }, 8000);
 }
 
 function doReset(kind){
