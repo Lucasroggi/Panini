@@ -226,8 +226,44 @@ function sectionVisible(sec){
 }
 
 /* ---- Reiter „Fehlen“ ---- */
+function shareList(title, text){
+  if (navigator.share){
+    navigator.share({ title, text }).catch(()=>{}); // Abbruch durch Nutzer ignorieren
+  } else {
+    navigator.clipboard.writeText(text).then(
+      ()=> alert('Direktes Teilen wird auf diesem Gerät nicht unterstützt – die Liste wurde stattdessen in die Zwischenablage kopiert.'),
+      ()=> alert('Teilen/Kopieren nicht möglich.')
+    );
+  }
+}
+
 function renderFehlen(){
-  let html = '';
+  // Fehlliste (immer ALLE fehlenden, unabhängig vom Filter) – zum Versenden
+  const missLines = [];
+  let missTotal = 0;
+  for (const sec of SECTIONS){
+    const parts = [];
+    state[sec.code].forEach((c,i)=>{ if (!c.o){ parts.push(sec.labels[i]); missTotal++; } });
+    if (parts.length) missLines.push(`${sec.code} (${sec.name}): ${parts.join(', ')}`);
+  }
+  const missText = missLines.length
+    ? 'Mir fehlen noch diese Panini-WM-2026-Sticker:\n\n' + missLines.join('\n')
+    : 'Keine fehlenden Sticker – die Sammlung ist komplett! 🎉';
+
+  const listBox = `
+    <div class="swap-box">
+      <div class="swap-head">
+        <h2>Fehlliste <span class="group-sub">${missTotal} fehlen</span></h2>
+        <div class="swap-actions">
+          <button id="btn-share-miss" class="btn btn-primary">Teilen</button>
+          <button id="btn-copy-miss" class="btn">Liste kopieren</button>
+          <button id="btn-print-miss" class="btn">Drucken</button>
+        </div>
+      </div>
+      <pre id="miss-list">${missText.replace(/</g,'&lt;')}</pre>
+    </div>`;
+
+  let cardsHtml = '';
   let lastGroup = null;
   for (const sec of SECTIONS){
     if (!sectionVisible(sec)) continue;
@@ -237,7 +273,7 @@ function renderFehlen(){
     if (sec.group !== lastGroup){
       lastGroup = sec.group;
       const label = sec.group === 'FWC' ? 'FWC – Spezialsticker' : 'Gruppe ' + sec.group;
-      html += `<h2 class="group-head"><span>${label}</span><span class="group-sub">${groupMissing(sec.group)} fehlen</span></h2>`;
+      cardsHtml += `<h2 class="group-head"><span>${label}</span><span class="group-sub">${groupMissing(sec.group)} fehlen</span></h2>`;
     }
 
     const cells = state[sec.code].map((c,i)=>{
@@ -245,7 +281,7 @@ function renderFehlen(){
       return `<button class="cell ${c.o?'owned':'missing'}" data-code="${sec.code}" data-i="${i}" title="Nr. ${label} – ${typeHint(sec,label)} (${c.o?'vorhanden':'fehlt'})">${label}</button>`;
     }).join('');
 
-    html += `
+    cardsHtml += `
       <article class="card ${missing===0?'complete':''}" data-code="${sec.code}">
         <header class="card-head">
           <span class="team">${flagHtml(sec)} <strong>${sec.code}</strong> <span class="tname">${sec.name}</span></span>
@@ -254,8 +290,21 @@ function renderFehlen(){
         <div class="grid">${cells}</div>
       </article>`;
   }
-  if (!html) html = '<p class="empty">Keine Treffer für diesen Filter.</p>';
-  $('#tab-fehlen').innerHTML = html;
+  if (!cardsHtml) cardsHtml = '<p class="empty">Keine Treffer für diesen Filter.</p>';
+
+  $('#tab-fehlen').innerHTML = listBox + cardsHtml;
+
+  const shareBtn = document.getElementById('btn-share-miss');
+  if (shareBtn) shareBtn.onclick = ()=> shareList('Meine fehlenden Panini-Sticker (WM 2026)', missText);
+  const copyBtn = document.getElementById('btn-copy-miss');
+  if (copyBtn) copyBtn.onclick = ()=>{
+    navigator.clipboard.writeText(missText).then(
+      ()=>{ copyBtn.textContent='Kopiert ✓'; setTimeout(()=>copyBtn.textContent='Liste kopieren',1500); },
+      ()=> alert('Konnte nicht in die Zwischenablage kopieren.')
+    );
+  };
+  const printBtn = document.getElementById('btn-print-miss');
+  if (printBtn) printBtn.onclick = ()=> window.print();
 }
 
 /* ---- Reiter „Doppelt“ ---- */
@@ -275,6 +324,7 @@ function renderDoppelt(){
       <div class="swap-head">
         <h2>Tauschliste <span class="group-sub">${t.doubles} zum Tauschen</span></h2>
         <div class="swap-actions">
+          <button id="btn-share-swap" class="btn btn-primary">Teilen</button>
           <button id="btn-copy-swap" class="btn">Liste kopieren</button>
           <button id="btn-print" class="btn">Drucken</button>
         </div>
@@ -320,6 +370,8 @@ function renderDoppelt(){
   }
   $('#tab-doppelt').innerHTML = html;
 
+  const shareBtn = document.getElementById('btn-share-swap');
+  if (shareBtn) shareBtn.onclick = ()=> shareList('Meine Panini-Tauschliste (WM 2026)', swapText);
   const copyBtn = document.getElementById('btn-copy-swap');
   if (copyBtn) copyBtn.onclick = ()=>{
     navigator.clipboard.writeText(swapText).then(

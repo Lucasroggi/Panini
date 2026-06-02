@@ -126,7 +126,8 @@ img.flag{width:24px;height:18px;border-radius:3px;vertical-align:-4px;object-fit
 
 /* ---------- Druck (Tauschliste) ---------- */
 @media print{
-  #topbar,.summary,.tabs,.toolbar,.foot,.swap-actions,.dbl-grid,.card-head .badge{display:none!important}
+  #topbar,.summary,.tabs,.toolbar,.foot,.swap-actions,.card,.group-head{display:none!important}
   body{background:#fff;color:#000}
-  #swap-list{max-height:none;border:none;background:#fff;color:#000}
+  .swap-box{border:none;padding:0}
+  #swap-list,#miss-list{max-height:none;border:none;background:#fff;color:#000;white-space:pre-wrap}
 }
