@@ -155,14 +155,18 @@ function typeHint(sec, label){
    Persistenz (Supabase)
    ============================================================ */
 async function loadCollection(){
-  const { data, error } = await sb.from('collections').select('data').eq('user_id', currentUser.id).maybeSingle();
+  // Timeout, damit eine "hängende" Anfrage die App nicht einfriert
+  const query = sb.from('collections').select('data').eq('user_id', currentUser.id).maybeSingle();
+  const timeout = new Promise((_, rej)=>
+    setTimeout(()=> rej(new Error('Zeitüberschreitung: Supabase hat nicht innerhalb von 10 s geantwortet.')), 10000));
+  const { data, error } = await Promise.race([query, timeout]);
   if (error){ setStatus('Ladefehler', 'err'); console.error(error); state = buildState(true); return; }
   if (data && data.data && Object.keys(data.data).length){
     state = normalize(data.data);
   } else {
-    // Neuer Account: mit Excel-Stand vorbefüllen und sofort speichern
+    // Neuer Account: mit Excel-Stand vorbefüllen, Speichern im Hintergrund (nicht blockierend)
     state = buildState(true);
-    await saveNow();
+    saveNow();
   }
 }
 
@@ -477,7 +481,11 @@ function wireEvents(){
     }
   });
 
-  $('#btn-logout').addEventListener('click', async ()=>{ if (sb) await sb.auth.signOut(); });
+  $('#btn-logout').addEventListener('click', ()=>{
+    // Lokal abmelden (ohne Netzwerk) und UI sofort auf Login schalten – hängt nie
+    if (sb) sb.auth.signOut({ scope: 'local' }).catch(err=> console.error('signOut:', err));
+    handleSession(null);
+  });
 
   // Reiter
   document.querySelectorAll('.tab-btn').forEach(b=>{
