@@ -53,23 +53,25 @@
       </section>
 
       <!-- Reiter -->
-      <nav class="tabs">
-        <button class="tab-btn active" data-tab="fehlen">Fehlen</button>
-        <button class="tab-btn" data-tab="doppelt">Doppelt</button>
-      </nav>
+      <div class="sticky-bar">
+        <nav class="tabs">
+          <button class="tab-btn active" data-tab="fehlen">Fehlen</button>
+          <button class="tab-btn" data-tab="doppelt">Doppelt</button>
+        </nav>
 
-      <!-- Werkzeugleiste -->
-      <div class="toolbar">
-        <input id="search" type="search" placeholder="Team suchen (z. B. BRA, Deutschland) …">
-        <label class="check"><input id="only-missing" type="checkbox"> nur unvollständige Teams</label>
-        <details id="reset-menu" class="reset-menu">
-          <summary class="btn btn-ghost">⚙ Zurücksetzen</summary>
-          <div class="reset-pop">
-            <button id="reset-seed" class="btn">Auf Excel-Stand setzen</button>
-            <button id="reset-empty" class="btn">Alles auf „fehlt“</button>
-            <button id="reset-all" class="btn">Alles als gesammelt</button>
-          </div>
-        </details>
+        <!-- Werkzeugleiste -->
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Team suchen (z. B. BRA, Deutschland) …">
+          <label class="check"><input id="only-missing" type="checkbox"> nur unvollständige Teams</label>
+          <details id="reset-menu" class="reset-menu">
+            <summary class="btn btn-ghost">⚙ Zurücksetzen</summary>
+            <div class="reset-pop">
+              <button id="reset-seed" class="btn">Auf Excel-Stand setzen</button>
+              <button id="reset-empty" class="btn">Alles auf „fehlt“</button>
+              <button id="reset-all" class="btn">Alles als gesammelt</button>
+            </div>
+          </details>
+        </div>
       </div>
 
       <!-- Panels -->

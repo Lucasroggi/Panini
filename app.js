@@ -200,6 +200,13 @@ function setStatus(text, cls){
    ============================================================ */
 function $(sel){ return document.querySelector(sel); }
 
+/* Höhe der (ggf. mehrzeiligen) Kopfzeile messen, damit die Sticky-Leiste
+   robust direkt darunter andockt – unabhängig von Fensterbreite/E-Mail-Länge. */
+function updateStickyOffsets(){
+  const tb = document.getElementById('topbar');
+  if (tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
+}
+
 function render(){
   updateSummary();
   if (currentTab === 'fehlen') renderFehlen();
@@ -423,6 +430,7 @@ async function handleSession(session){
     $('#auth-view').hidden = true;
     $('#main-view').hidden = false;
     $('#user-email').textContent = currentUser.email;
+    updateStickyOffsets();
     if (loadedFor !== currentUser.id){
       loadedFor = currentUser.id;
       setStatus('Laden …', 'pending');
@@ -495,6 +503,7 @@ function startDemo(){
   $('#user-email').textContent = 'Demo-Modus – nicht gespeichert';
   setStatus('Demo – nicht gespeichert', '');
   render();
+  updateStickyOffsets();
 }
 
 function init(){
@@ -504,6 +513,10 @@ function init(){
     return;
   }
   wireEvents();
+  updateStickyOffsets();
+  window.addEventListener('resize', updateStickyOffsets);
+  window.addEventListener('load', updateStickyOffsets);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateStickyOffsets);
 
   // Ausstehende Speicherung sichern, wenn die Seite in den Hintergrund geht/geschlossen wird
   const flush = ()=>{ if (pendingSave){ clearTimeout(saveTimer); saveNow(); } };
