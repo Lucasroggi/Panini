@@ -117,7 +117,8 @@ img.flag{width:24px;height:18px;border-radius:3px;vertical-align:-4px;object-fit
 .swap-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .swap-head h2{margin:0;font-size:1.1rem}
 .swap-actions{display:flex;gap:8px}
-#swap-list{white-space:pre-wrap;background:#0f1626;border:1px solid var(--line);border-radius:9px;padding:12px;margin:12px 0 0;font-size:.86rem;max-height:280px;overflow:auto}
+/* Liste am Bildschirm ausgeblendet – es bleiben nur die Buttons; beim Drucken wieder sichtbar */
+#swap-list,#miss-list{display:none}
 
 .foot{text-align:center;color:var(--muted);padding:20px}
 
@@ -133,5 +134,5 @@ img.flag{width:24px;height:18px;border-radius:3px;vertical-align:-4px;object-fit
   #topbar,.summary,.tabs,.toolbar,.foot,.swap-actions,.card,.group-head{display:none!important}
   body{background:#fff;color:#000}
   .swap-box{border:none;padding:0}
-  #swap-list,#miss-list{max-height:none;border:none;background:#fff;color:#000;white-space:pre-wrap}
+  #swap-list,#miss-list{display:block;max-height:none;border:none;background:#fff;color:#000;white-space:pre-wrap;font-size:.9rem}
 }
