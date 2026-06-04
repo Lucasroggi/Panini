@@ -11,13 +11,17 @@
 
   <div id="app">
     <!-- Kopfzeile -->
-    <header id="topbar">
-      <div class="brand">⚽ <span>Panini <strong>WM 2026</strong></span></div>
-      <div class="topbar-right">
-        <span id="save-status" class="save-status"></span>
-        <span id="user-email" class="user-email"></span>
-        <button id="btn-logout" class="btn btn-ghost" hidden>Abmelden</button>
-      </div>
+    <header id="topbar" hidden>
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="fehlen">Fehlen</button>
+        <button class="tab-btn" data-tab="doppelt">Doppelt</button>
+      </nav>
+      <button id="btn-search" class="icon-btn" title="Team suchen" aria-label="Team suchen">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      </button>
+      <button id="btn-logout" class="icon-btn" title="Abmelden" aria-label="Abmelden">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </header>
 
     <!-- Login / Registrierung -->
@@ -40,6 +44,12 @@
     <!-- Hauptansicht -->
     <main id="main-view" hidden>
 
+      <!-- Suchleiste (per Lupe ein-/ausblendbar) -->
+      <div id="search-row" class="search-row" hidden>
+        <input id="search" type="search" placeholder="Team suchen (z. B. BRA, Deutschland) …">
+        <label class="check"><input id="only-missing" type="checkbox"> nur unvollständige</label>
+      </div>
+
       <!-- Fortschritt -->
       <section id="summary" class="summary">
         <div class="progress">
@@ -49,22 +59,9 @@
           <div class="stat"><span id="sum-collected">0</span> / <span id="sum-total">0</span> gesammelt <span class="muted">(<span id="sum-pct">0%</span>)</span></div>
           <div class="stat stat-missing">Fehlen: <span id="sum-missing">0</span></div>
           <div class="stat stat-dbl">Doppelt: <span id="sum-doubles">0</span></div>
-        </div>
-      </section>
-
-      <!-- Reiter -->
-      <div class="sticky-bar">
-        <nav class="tabs">
-          <button class="tab-btn active" data-tab="fehlen">Fehlen</button>
-          <button class="tab-btn" data-tab="doppelt">Doppelt</button>
-        </nav>
-
-        <!-- Werkzeugleiste -->
-        <div class="toolbar">
-          <input id="search" type="search" placeholder="Team suchen (z. B. BRA, Deutschland) …">
-          <label class="check"><input id="only-missing" type="checkbox"> nur unvollständige Teams</label>
+          <span id="save-status" class="save-status"></span>
           <details id="reset-menu" class="reset-menu">
-            <summary class="btn btn-ghost">⚙ Zurücksetzen</summary>
+            <summary class="icon-btn" title="Sammlung zurücksetzen">⚙</summary>
             <div class="reset-pop">
               <button id="reset-seed" class="btn">Auf Excel-Stand setzen</button>
               <button id="reset-empty" class="btn">Alles auf „fehlt“</button>
@@ -72,7 +69,7 @@
             </div>
           </details>
         </div>
-      </div>
+      </section>
 
       <!-- Panels -->
       <div id="tab-fehlen" class="tab-panel"></div>

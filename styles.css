@@ -15,14 +15,13 @@ code{background:#0008;padding:2px 5px;border-radius:5px;font-size:.9em}
 
 /* ---------- Topbar ---------- */
 #topbar{
-  position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:10px 16px;background:#11182a;border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;
+  gap:6px;padding:5px 10px;background:#11182a;border-bottom:1px solid var(--line);
 }
 .brand{font-size:1.15rem}
 .brand strong{color:var(--gold)}
-.topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
-.user-email{color:var(--muted);font-size:.85rem}
-.save-status{font-size:.8rem;color:var(--muted);min-width:90px;text-align:right}
+.topbar-right{display:flex;align-items:center;gap:2px}
+.save-status{font-size:.8rem;color:var(--muted);margin-left:auto}
 .save-status.ok{color:var(--green)}
 .save-status.pending{color:var(--gold)}
 .save-status.err{color:var(--red)}
@@ -56,16 +55,19 @@ code{background:#0008;padding:2px 5px;border-radius:5px;font-size:.9em}
 .stat-dbl span{color:var(--gold)}
 .muted{color:var(--muted);font-weight:400}
 
-/* ---------- Sticky-Leiste: Reiter + Werkzeugleiste bleiben beim Scrollen sichtbar ---------- */
-.sticky-bar{position:sticky;top:var(--topbar-h,56px);z-index:15;background:var(--bg)}
-
-/* ---------- Tabs ---------- */
-.tabs{display:flex;gap:6px;padding:12px 16px 0}
-.tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:var(--muted);font-size:1.05rem;font-weight:600;padding:8px 16px}
+/* ---------- Tabs (kompakt, in der Kopfzeile) ---------- */
+.tabs{display:flex;gap:4px}
+.tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:.92rem;font-weight:600;padding:5px 9px;border-radius:6px 6px 0 0}
 .tab-btn.active{color:var(--txt);border-bottom-color:var(--green)}
 
+/* ---------- Icon-Buttons (Lupe, Abmelden, Zahnrad) ---------- */
+.icon-btn{background:transparent;border:none;color:var(--txt);cursor:pointer;padding:6px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;line-height:0;font-size:1.05rem}
+.icon-btn:hover{background:#ffffff18}
+.icon-btn.active{color:var(--green)}
+#btn-logout{margin-left:auto}  /* Abmelden ganz nach rechts */
+
 /* ---------- Toolbar ---------- */
-.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line)}
+.search-row{position:sticky;top:var(--topbar-h,48px);z-index:15;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
 #search{flex:1;min-width:200px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:#0f1626;color:var(--txt)}
 .check{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.88rem;white-space:nowrap}
 .reset-menu{position:relative}

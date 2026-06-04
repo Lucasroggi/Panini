@@ -438,11 +438,11 @@ function authMsg(text, isErr){
 
 async function handleSession(session){
   currentUser = session?.user || null;
-  $('#btn-logout').hidden = !currentUser;
+  $('#topbar').hidden = !currentUser;
   if (currentUser){
     $('#auth-view').hidden = true;
     $('#main-view').hidden = false;
-    $('#user-email').textContent = currentUser.email;
+    $('#btn-logout').title = 'Abmelden – ' + currentUser.email;
     updateStickyOffsets();
     if (loadedFor !== currentUser.id){
       loadedFor = currentUser.id;
@@ -496,6 +496,21 @@ function wireEvents(){
     handleSession(null);
   });
 
+  // Suche per Lupe ein-/ausblenden
+  $('#btn-search').addEventListener('click', ()=>{
+    const row = $('#search-row');
+    const show = row.hidden;
+    row.hidden = !show;
+    $('#btn-search').classList.toggle('active', show);
+    if (show){ $('#search').focus(); }
+    else {
+      $('#search').value = ''; filterQuery = '';
+      $('#only-missing').checked = false; filterOnlyMissing = false;
+      render();
+    }
+  });
+  $('#search').addEventListener('keydown', (e)=>{ if (e.key === 'Escape') $('#btn-search').click(); });
+
   // Reiter
   document.querySelectorAll('.tab-btn').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -524,10 +539,10 @@ function wireEvents(){
 function startDemo(){
   currentUser = { id:'demo', email:'Demo' };
   state = buildState(true);
+  $('#topbar').hidden = false;
   $('#auth-view').hidden = true;
   $('#main-view').hidden = false;
-  $('#btn-logout').hidden = true;
-  $('#user-email').textContent = 'Demo-Modus – nicht gespeichert';
+  $('#btn-logout').hidden = true;   // im Demo-Modus kein echtes Konto
   setStatus('Demo – nicht gespeichert', '');
   render();
   updateStickyOffsets();
