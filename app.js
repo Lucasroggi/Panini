@@ -26,6 +26,10 @@ const sb = CONFIGURED ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPAB
    (zum Ausprobieren vor dem Supabase-Setup). */
 const DEMO = new URLSearchParams(location.search).has('demo');
 
+// Anmeldung per Benutzername: intern wird daraus eine E-Mail "name@panini.app".
+// (Supabase-Auth verlangt eine E-Mail; eine echte E-Mail mit @ wird direkt genutzt.)
+const USERNAME_DOMAIN = '@panini.app';
+
 /* ---------- Stammdaten: Gruppen & Teams (Endauslosung 05.12.2025) ---------- */
 const PER_TEAM = 20;
 // Sticker-Beschriftungen: Teams 1..20; FWC zusätzlich "00" (Panini-Logo) vor 1..20
@@ -476,14 +480,19 @@ function wireEvents(){
   $('#auth-form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     if (!sb) return;
-    const email = $('#auth-email').value.trim();
+    const raw = $('#auth-user').value.trim();
     const pw = $('#auth-pw').value;
+    // Benutzername -> interne E-Mail "name@panini.app"; eine echte E-Mail (mit @) direkt verwenden
+    if (!raw.includes('@') && !/^[a-zA-Z0-9._-]{3,}$/.test(raw)){
+      return authMsg('Benutzername: mind. 3 Zeichen, nur Buchstaben, Zahlen, . _ -', true);
+    }
+    const email = raw.includes('@') ? raw.toLowerCase() : raw.toLowerCase() + USERNAME_DOMAIN;
     const mode = e.submitter && e.submitter.value === 'signup' ? 'signup' : 'signin';
     authMsg('Bitte warten …', false);
     if (mode === 'signup'){
       const { data, error } = await sb.auth.signUp({ email, password: pw });
       if (error) return authMsg(error.message, true);
-      if (!data.session) authMsg('Konto erstellt. Falls E-Mail-Bestätigung aktiv ist: Postfach prüfen, dann anmelden.', false);
+      if (!data.session) authMsg('Konto erstellt – jetzt anmelden. (Klappt das nicht, muss in Supabase „Confirm email“ deaktiviert sein.)', false);
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password: pw });
       if (error) return authMsg(error.message, true);

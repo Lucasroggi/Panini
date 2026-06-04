@@ -20,8 +20,10 @@ sodass deine Sammlung auf PC und Handy synchron ist.
 3. **Project Settings → Data API** (bzw. **API**): kopiere
    - **Project URL**
    - **anon / public key**
-4. *(Optional, bequemer beim Testen)* **Authentication → Sign In / Providers → Email**:
-   „**Confirm email**“ ausschalten, dann kannst du dich sofort ohne Bestätigungsmail anmelden.
+4. **Authentication → Sign In / Providers → Email**: „**Confirm email**“ **ausschalten**.
+   Das ist nötig, damit die Anmeldung **per Benutzername** funktioniert (intern wird daraus
+   die Adresse `name@panini.app`, die keine Bestätigungsmail empfangen kann). Eine echte
+   E-Mail mit `@` wird ebenfalls direkt akzeptiert.
 
 ## 2) Zugangsdaten eintragen
 
